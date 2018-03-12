@@ -65,6 +65,12 @@ CGRect _AdjustCGRectForContentsGravity(CGRect aRect, CGSize aSize, NSString *aGr
     return self;
 }
 
+- (void)dealloc
+{
+    CGColorRelease(_fillColor);
+    CGColorRelease(_strokeColor);
+}
+
 - (void)_cr_setPaths:(NSArray<SVGBezierPath*> *)paths
 {
     [_shapeLayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
@@ -186,13 +192,19 @@ CGRect _AdjustCGRectForContentsGravity(CGRect aRect, CGSize aSize, NSString *aGr
 
 - (void)setFillColor:(CGColorRef)aColor
 {
-    _fillColor = aColor;
+    CGColorRef previousColor = _fillColor;
+    _fillColor = CGColorRetain(aColor);
+    CGColorRelease(previousColor);
+
     [_shapeLayers setValue:(__bridge id)_fillColor forKey:@"fillColor"];
 }
 
 - (void)setStrokeColor:(CGColorRef)aColor
 {
-    _strokeColor = aColor;
+    CGColorRef previousColor = _strokeColor;
+    _strokeColor = CGColorRetain(aColor);
+    CGColorRelease(previousColor);
+
     [_shapeLayers setValue:(__bridge id)_strokeColor forKey:@"strokeColor"];
 }
 
